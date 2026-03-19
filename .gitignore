@@ -1,0 +1,70 @@
+# =========================
+# 🔐 ENV FILES
+# =========================
+.env
+.env.*
+*.env
+
+# =========================
+# 🐍 PYTHON BACKEND
+# =========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+venv/
+env/
+ENV/
+
+# DB files
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# =========================
+# 🤖 ML MODELS (IMPORTANT)
+# =========================
+*.h5
+*.pt
+*.pth
+*.ckpt
+*.joblib
+*.pkl
+
+# Your model folder
+Backend/fer/emotion_model_tf/
+
+# =========================
+# 🌐 FRONTEND (React/Vite)
+# =========================
+node_modules/
+dist/
+build/
+.vite/
+
+# =========================
+# 🧰 IDE FILES
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# 🖥️ OS FILES
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# 🧪 TEMP FILES
+# =========================
+*.tmp
+*.temp
+*.bak
+
+# =========================
+# OPTIONAL
+# =========================
+*.csv
