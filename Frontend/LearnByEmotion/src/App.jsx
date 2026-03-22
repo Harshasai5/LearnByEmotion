@@ -7,8 +7,7 @@ import CourseDetail from "./pages/CourseDetail";
 import SectionArticles from "./pages/SectionArticles";
 import ArticleReader from "./pages/ArticleReader";
 
-
-// ✅ NEW IMPORTS
+// Activities
 import Games from "./pages/Games";
 import MatchFlow from "./pages/MatchFlow";
 import SelectSet from "./pages/SelectSet";
@@ -20,7 +19,7 @@ import Break from "./pages/Break";
 import DeepDive from "./pages/DeepDive";
 import Chat from "./pages/Chat";
 
-
+// 🔒 Protected Route
 const ProtectedRoute = ({ children }) => {
   const studentId = localStorage.getItem("student_id");
   return studentId ? children : <Navigate to="/login" />;
@@ -29,11 +28,12 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <Routes>
-      {/* Public */}
+
+      {/* 🔓 PUBLIC ROUTES */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* Protected */}
+      {/* 🔒 PROTECTED ROUTES */}
       <Route
         path="/"
         element={
@@ -43,26 +43,130 @@ function App() {
         }
       />
 
-      {/* Learning Flow */}
-      <Route path="/courses/:courseId" element={<CourseDetail />} />
-      <Route path="/sections/:sectionId/articles" element={<SectionArticles />} />
-      <Route path="/articles/:articleId" element={<ArticleReader />} />
+      {/* 📘 LEARNING FLOW */}
+      <Route
+        path="/courses/:courseId"
+        element={
+          <ProtectedRoute>
+            <CourseDetail />
+          </ProtectedRoute>
+        }
+      />
 
-      {/* ✅ NEW RECOMMENDATION ROUTES */}
-      <Route path="/games" element={<Games />} />
-      <Route path="/games/match-flow" element={<MatchFlow />} />
-      <Route path="/games/select-set" element={<SelectSet />} />
-      <Route path="/games/fill-blanks" element={<FillBlanks />} />      
-      <Route path="/quiz" element={<QuizList />} />
-      <Route path="/quiz/play" element={<QuizPlay />} />
-      <Route path="/quiz/recommended" element={<RecommendedQuiz />} />   
-      <Route path="/break" element={<Break />} />
-      <Route path="/deepdive" element={<DeepDive />} />
-      <Route path="/chat" element={<Chat />} />
+      <Route
+        path="/sections/:sectionId/articles"
+        element={
+          <ProtectedRoute>
+            <SectionArticles />
+          </ProtectedRoute>
+        }
+      />
 
+      <Route
+        path="/articles/:articleId"
+        element={
+          <ProtectedRoute>
+            <ArticleReader />
+          </ProtectedRoute>
+        }
+      />
 
-      {/* Fallback */}
+      {/* 🎮 ACTIVITIES */}
+      <Route
+        path="/games"
+        element={
+          <ProtectedRoute>
+            <Games />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/games/match-flow"
+        element={
+          <ProtectedRoute>
+            <MatchFlow />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/games/fill-blanks"
+        element={
+          <ProtectedRoute>
+            <FillBlanks />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/games/select-set"
+        element={
+          <ProtectedRoute>
+            <SelectSet />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* 🧠 QUIZ */}
+      <Route
+        path="/quiz"
+        element={
+          <ProtectedRoute>
+            <QuizList />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/quiz/play"
+        element={
+          <ProtectedRoute>
+            <QuizPlay />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/quiz/recommended"
+        element={
+          <ProtectedRoute>
+            <RecommendedQuiz />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* 🧘 EXTRA */}
+      <Route
+        path="/break"
+        element={
+          <ProtectedRoute>
+            <Break />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/deepdive"
+        element={
+          <ProtectedRoute>
+            <DeepDive />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <Chat />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* 🔁 FALLBACK */}
       <Route path="*" element={<Navigate to="/" />} />
+
     </Routes>
   );
 }

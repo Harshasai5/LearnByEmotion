@@ -1,17 +1,27 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getFillBlanks } from "../api/gamesApi";
+import "./css/fill.css";
 
 export default function FillBlanks() {
-  const [game, setGame] = useState(null);
+  const [games, setGames] = useState([]);
+  const [options, setOptions] = useState([]);
   const [answers, setAnswers] = useState({});
   const [dragItem, setDragItem] = useState(null);
   const [result, setResult] = useState(null);
+  const [validation, setValidation] = useState({});
 
+  const navigate = useNavigate();
+
+  // 🔹 Load data
   useEffect(() => {
-    getFillBlanks().then(res => setGame(res.data[0]));
+    getFillBlanks().then(res => {
+      setGames(res.data.questions);
+      setOptions(res.data.options);
+    });
   }, []);
 
-  // 🔹 Handle drop into blank
+  // 🔹 Handle drop
   const handleDrop = (key) => {
     if (!dragItem) return;
 
@@ -21,87 +31,127 @@ export default function FillBlanks() {
     }));
   };
 
-  // 🔹 Check answer
+  // 🔹 Check answers
   const checkAnswer = () => {
+    let resultMap = {};
     let correct = true;
 
-    for (let key in game.correct_mapping) {
-      if (
-        (answers[key] || "").trim().toLowerCase() !==
-        game.correct_mapping[key].trim().toLowerCase()
-      ) {
-        correct = false;
-      }
-    }
+    games.forEach((game, qIndex) => {
+      Object.keys(game.correct_mapping).forEach((k) => {
+        const key = `${qIndex}-${k}`;
 
-    setResult(correct ? "✅ Correct!" : "❌ Try again");
+        const userAns = (answers[key] || "").trim().toLowerCase();
+        const correctAns = game.correct_mapping[k].trim().toLowerCase();
+
+        if (userAns === correctAns) {
+          resultMap[key] = "correct";
+        } else {
+          resultMap[key] = "wrong";
+          correct = false;
+        }
+      });
+    });
+
+    setValidation(resultMap);
+
+    if (correct) {
+      setResult("🎉 All answers correct!");
+    } else {
+      setResult("❌ Some answers are wrong. Try again!");
+    }
   };
 
-  if (!game) return <p>Loading...</p>;
+  if (games.length === 0) return <p>Loading...</p>;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>✏️ Fill Blanks</h2>
+    <div className="fill-container">
 
-      {/* 🔥 QUESTION WITH BLANKS */}
-      <p style={{ fontSize: 18 }}>
-        {game.question.split("____").map((part, i) => (
-          <span key={i}>
-            {part}
-
-            {/* Blank box */}
-            {i < Object.keys(game.correct_mapping).length && (
-              <span
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => handleDrop(i)}
-                style={blankBox}
-              >
-                {answers[i] || "____"}
-              </span>
-            )}
-          </span>
-        ))}
-      </p>
-
-      {/* 🔥 OPTIONS */}
-      <div style={{ marginTop: 20 }}>
-        <h4>Options:</h4>
-
-        {game.options.map((opt, i) => (
-          <div
-            key={i}
-            draggable
-            onDragStart={() => setDragItem(opt)}
-            style={optionBox}
+      {/* 🔝 NAVBAR */}
+      <div className="fill-navbar">
+        <div className="nav-left">
+          <button
+            className="back-btn"
+            onClick={() => navigate(-1)}
           >
-            {opt}
-          </div>
-        ))}
+            ← Back to Learning
+          </button>
+        </div>
+
+        <h2 className="course-logo">LearnByEmotion</h2>
+
+        <div className="nav-right"></div>
       </div>
 
-      {/* 🔥 CHECK BUTTON */}
-      <button onClick={checkAnswer} style={{ marginTop: 20 }}>
-        Check
-      </button>
+      <p className="fill-subtitle">Game: Fill in the Blanks</p>
 
-      {result && <p>{result}</p>}
+      <div className="fill-main">
+
+        {/* 🔹 LEFT PANEL - QUESTIONS */}
+        <div className="questions-panel">
+
+          {games.map((game, qIndex) => (
+            <div key={qIndex} className="question-block">
+
+              <p className="question-line">
+                <b>{qIndex + 1}.</b>{" "}
+
+                {game.question.split("____").map((part, i) => {
+                  const key = `${qIndex}-${i}`;
+
+                  return (
+                    <span key={i}>
+                      {part}
+
+                      {i < Object.keys(game.correct_mapping).length && (
+                        <span
+                          className={`inline-blank 
+                            ${answers[key] ? "filled" : ""} 
+                            ${validation[key] === "correct" ? "correct" : ""} 
+                            ${validation[key] === "wrong" ? "wrong" : ""}
+                          `}
+                          onDragOver={(e) => e.preventDefault()}
+                          onDrop={() => handleDrop(key)}
+                        >
+                          {answers[key] || "______"}
+                        </span>
+                      )}
+                    </span>
+                  );
+                })}
+              </p>
+
+            </div>
+          ))}
+
+        </div>
+
+        {/* 🔹 RIGHT PANEL - OPTIONS */}
+        <div className="options-panel">
+
+          <h3>Answers</h3>
+
+          <div className="options-grid">
+            {options.map((opt, i) => (
+              <div
+                key={i}
+                draggable
+                onDragStart={() => setDragItem(opt)}
+                className="option-box"
+              >
+                {opt}
+              </div>
+            ))}
+          </div>
+
+          <button onClick={checkAnswer} className="check-btn">
+            Check Answer
+          </button>
+
+          {result && <p className="result">{result}</p>}
+
+        </div>
+
+      </div>
     </div>
   );
 }
-
-const blankBox = {
-  display: "inline-block",
-  minWidth: 120,
-  padding: "5px 10px",
-  margin: "0 5px",
-  border: "2px dashed #555",
-  textAlign: "center"
-};
-
-const optionBox = {
-  display: "inline-block",
-  padding: "10px 15px",
-  margin: "5px",
-  background: "#ddd",
-  cursor: "grab"
-};

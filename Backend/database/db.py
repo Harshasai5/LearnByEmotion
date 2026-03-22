@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 import pymysql
 
 
-DATABASE_URL = "mysql+pymysql://root@localhost:3306/emotion_learning"
+DATABASE_URL = "mysql+pymysql://root:@localhost:3306/emotion_learning"
 
 engine = create_engine(
     DATABASE_URL,
@@ -18,12 +18,18 @@ SessionLocal = sessionmaker(
 
 Base = declarative_base()
 
-
 def get_db():
-    return pymysql.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="emotion_learning",
-        cursorclass=pymysql.cursors.DictCursor
-    )
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+#def get_db():
+    #return pymysql.connect(
+        #host="localhost",
+        #user="root",
+        #password="",
+        #database="emotion_learning",
+        #cursorclass=pymysql.cursors.DictCursor
+    #)

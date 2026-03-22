@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import SuggestionBox from "../components/SuggestionBox";
+import "./css/articleReader.css";
 
 export default function ArticleReader() {
   const { articleId } = useParams();
+  const navigate = useNavigate();
 
   const studentId = Number(localStorage.getItem("student_id"));
   const studentName = localStorage.getItem("student_name");
@@ -69,33 +71,54 @@ export default function ArticleReader() {
 
   if (!article) return <p>Loading...</p>;
 
-  return (
-    <div style={{ padding: 30 }}>
-      <h3>👤 {studentName}</h3>
+return (
+  <div className="reader-container">
 
-      <h2>{article.article_title}</h2>
+    {/* 🔝 TOP BAR */}
+    <div className="top-bar">
 
-      <p style={{ whiteSpace: "pre-line" }}>
-        {article.article_content}
-      </p>
+      <div className="nav-left">
+        <button onClick={() => navigate(-1)} className="back-btn">
+          ← Back
+        </button>
+      </div>
+
+      <div className="nav-center user-name">
+        👤 {studentName}
+      </div>
+
+      <div className="nav-right"></div>
+
+    </div>
+
+    {/* 📖 ARTICLE */}
+    <div className="article-box">
+
+      <h2 className="article-title">
+        {article.article_title}
+      </h2>
+
+      <div className="article-content">
+        {article.article_content.split("\n").map((para, i) => (
+          <p key={i}>{para}</p>
+        ))}
+      </div>
 
       {!completed && (
-        <button onClick={handleComplete} style={btnStyle}>
-          ✅ Mark as Completed & Finish
+        <button className="complete-btn" onClick={handleComplete}>
+          ✔ Mark as Completed & Finish
         </button>
       )}
 
-      <SuggestionBox recommendation={recommendation} />
     </div>
-  );
-}
 
-const btnStyle = {
-  marginTop: 30,
-  padding: "10px 15px",
-  background: "#4CAF50",
-  color: "white",
-  border: "none",
-  borderRadius: "5px",
-  cursor: "pointer"
-};
+    {/* 🔥 SUGGESTION */}
+    {completed && (
+      <div className="suggestion-wrapper">
+        <SuggestionBox recommendation={recommendation} />
+      </div>
+    )}
+
+  </div>
+);
+}
