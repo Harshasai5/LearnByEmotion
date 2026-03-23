@@ -1,23 +1,29 @@
 import { useState, useEffect, useRef } from "react";
 import { sendMessage, getHistory, markUseful } from "../services/chatApi";
+import "./css/Chat.css";
+import { useNavigate } from "react-router-dom";
 
-function Chat() {
+export default function Chat() {
   const [message, setMessage] = useState("");
-  const [chat, setChat] = useState([]);
+
+  // 🔥 NEW STATES
+  const [allChats, setAllChats] = useState([]);       // history
+  const [currentChat, setCurrentChat] = useState([]); // current session
+
   const [useful, setUseful] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const chatEndRef = useRef(null);
   const studentId = 1;
+  const navigate = useNavigate();
 
-  // ✅ LOAD HISTORY
+  // ✅ LOAD HISTORY (only left side)
   const loadHistory = async () => {
     try {
       const res = await getHistory(studentId);
-
       const history = res.history || [];
 
-      setChat(history);
+      setAllChats(history); // 🔥 only history
       setUseful(history.filter((c) => c.is_useful));
     } catch (err) {
       console.error(err);
@@ -28,11 +34,12 @@ function Chat() {
     loadHistory();
   }, []);
 
+  // ✅ SCROLL ONLY CURRENT CHAT
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat]);
+  }, [currentChat]);
 
-  // ✅ SEND MESSAGE
+  // ✅ SEND MESSAGE → only center
   const handleSend = async () => {
     if (!message.trim() || loading) return;
 
@@ -51,7 +58,7 @@ function Chat() {
         is_useful: false,
       };
 
-      setChat((prev) => [...prev, newChat]);
+      setCurrentChat((prev) => [...prev, newChat]); // 🔥 only center
       setMessage("");
     } catch (err) {
       console.error(err);
@@ -67,77 +74,120 @@ function Chat() {
 
     await markUseful(chatId);
 
-    const updated = [...chat];
+    const updated = [...currentChat];
     updated[index].is_useful = true;
 
-    setChat(updated);
+    setCurrentChat(updated);
     setUseful((prev) => [...prev, updated[index]]);
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
-      
-      {/* 🔵 LEFT - HISTORY */}
-      <div style={{ width: "20%", borderRight: "1px solid gray", padding: "10px" }}>
-        <h3>History</h3>
+    <div className="main-container">
 
-        {chat
-          .slice()
-          .reverse()
-          .slice(0, 10)
-          .map((c, i) => (
-            <div key={i}>
-              <p style={{ fontSize: "12px" }}>
-                {c.message?.slice(0, 30)}...
-              </p>
-            </div>
-          ))}
-      </div>
+      {/* NAVBAR */}
+      <div
+        style={{
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "20px 30px",
+          background: "#6ea8a1"
+        }}
+      >
+        <button onClick={() => navigate("/")} style={btnStyle}>
+          ← Back
+        </button>
 
-      {/* 🟢 CENTER - CHAT */}
-      <div style={{ width: "60%", padding: "10px" }}>
-        <h3>Chat</h3>
+        <h2 style={titleStyle}>LearnByEmotion</h2>
 
-        {chat.map((c, i) => (
-          <div key={i} style={{ marginBottom: "15px" }}>
-            <p><b>You:</b> {c.message}</p>
-            <p><b>Bot:</b> {c.response}</p>
-
-            {!c.is_useful && c.chat_id && (
-              <button onClick={() => handleMarkUseful(c.chat_id, i)}>
-                ⭐ Save
-              </button>
-            )}
-          </div>
-        ))}
-
-        <div ref={chatEndRef} />
-
-        <input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          placeholder="Ask something..."
-        />
-
-        <button onClick={handleSend} disabled={loading}>
-          {loading ? "Sending..." : "Send"}
+        <button onClick={() => navigate("/")} style={btnStyle}>
+          🏠 Home
         </button>
       </div>
 
-      {/* 🟡 RIGHT - USEFUL */}
-      <div style={{ width: "20%", borderLeft: "1px solid gray", padding: "10px" }}>
-        <h3>Useful</h3>
+      {/* BODY */}
+      <div className="container">
 
-        {useful.map((c, i) => (
-          <div key={i}>
-            <p><b>Q:</b> {c.message}</p>
-            <p><b>A:</b> {c.response}</p>
+        {/* LEFT - HISTORY */}
+        <div className="sidebar">
+          <h2>History</h2>
+          {allChats
+            .slice()
+            .reverse()
+            .slice(0, 10)
+            .map((c, i) => (
+              <div key={i} className="history-item">
+                {c.message?.slice(0, 40)}...
+              </div>
+            ))}
+        </div>
+
+        {/* CENTER - CURRENT CHAT */}
+        <div className="chat-area">
+          <div className="chat-box">
+            {currentChat.map((c, i) => (
+              <div key={i} className="chat-block">
+                <div className="user-msg">{c.message}</div>
+                <div className="bot-msg">{c.response}</div>
+
+                {!c.is_useful && c.chat_id && (
+                  <button
+                    className="save-btn"
+                    onClick={() => handleMarkUseful(c.chat_id, i)}
+                  >
+                    ⭐ Save
+                  </button>
+                )}
+              </div>
+            ))}
+            <div ref={chatEndRef} />
           </div>
-        ))}
+
+          <div className="input-area">
+            <input
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              placeholder="Type your message..."
+            />
+            <button onClick={handleSend} disabled={loading}>
+              {loading ? "Sending..." : "Send"}
+            </button>
+          </div>
+        </div>
+
+        {/* RIGHT - USEFUL */}
+        <div className="sidebar">
+          <h2>Useful</h2>
+          {useful.map((c, i) => (
+            <div key={i} className="useful-item">
+              <b>Q:</b> {c.message}
+              <br />
+              <b>A:</b> {c.response}
+            </div>
+          ))}
+        </div>
+
       </div>
     </div>
   );
 }
 
-export default Chat;
+// 🔥 styles
+const btnStyle = {
+  background: "#3b5d5a",
+  color: "white",
+  border: "none",
+  padding: "8px 16px",
+  borderRadius: "8px",
+  cursor: "pointer"
+};
+
+const titleStyle = {
+  position: "absolute",
+  left: "50%",
+  transform: "translateX(-50%)",
+  margin: 0,
+  fontWeight: "bold"
+};

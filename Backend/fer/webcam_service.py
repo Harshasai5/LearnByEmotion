@@ -37,7 +37,7 @@ def webcam_emotion_loop(session_id: int, student_id: int):
 
         # 🔥 Detect faces
         faces = face_cascade.detectMultiScale(
-            gray, scaleFactor=1.3, minNeighbors=5
+            gray, scaleFactor=1.3, minNeighbors=3
         )
 
         if len(faces) == 0:

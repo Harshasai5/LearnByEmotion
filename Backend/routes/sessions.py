@@ -21,7 +21,6 @@ def start_session(
     db: Session = Depends(get_db)
 ):
     try:
-        # 1️⃣ Create learning session
         session = LearningSession(
             student_id=student_id,
             course_id=course_id,
@@ -34,7 +33,7 @@ def start_session(
         db.commit()
         db.refresh(session)
 
-        # 2️⃣ Start webcam with session + student
+        # 🔥 Start webcam
         start_webcam(session.session_id, student_id)
 
         return {
@@ -44,10 +43,10 @@ def start_session(
 
     except Exception as e:
         print("❌ START SESSION ERROR:", e)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Failed to start session")
 
 
-# 🔹 OPTIONAL: Manual Emotion Log (for testing only)
+# 🔹 OPTIONAL: Manual Emotion Log (for testing)
 @router.post("/log-emotion")
 def log_emotion(
     session_id: int,
@@ -55,11 +54,9 @@ def log_emotion(
     emotion: str,
     db: Session = Depends(get_db)
 ):
-    session = (
-        db.query(LearningSession)
-        .filter(LearningSession.session_id == session_id)
-        .first()
-    )
+    session = db.query(LearningSession).filter(
+        LearningSession.session_id == session_id
+    ).first()
 
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -80,47 +77,54 @@ def log_emotion(
     }
 
 
-# 🔹 END SESSION (STOPS WEBCAM + AGGREGATION)
-@router.post("/end")
 # 🔥 END SESSION (FINAL FIXED)
 @router.post("/end")
 def end_session(
     session_id: int,
     db: Session = Depends(get_db)
 ):
-    session = (
-        db.query(LearningSession)
-        .filter(LearningSession.session_id == session_id)
-        .first()
-    )
+    session = db.query(LearningSession).filter(
+        LearningSession.session_id == session_id
+    ).first()
 
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    # 1️⃣ Stop webcam
+    # 🔥 Stop webcam FIRST
     stop_webcam()
 
-    # 2️⃣ End session
+    # 1️⃣ End session
     session.end_time = datetime.utcnow()
 
-    # 3️⃣ Compute final emotion
+    # 2️⃣ Compute final emotion
     final_emotion = compute_final_emotion(db, session)
+
+    # ✅ fallback (VERY IMPORTANT)
+    if not final_emotion:
+        final_emotion = "Neutral"
+
     session.final_emotion = final_emotion
 
     db.commit()
     db.refresh(session)
 
-    print("🔥 FINAL EMOTION:", final_emotion)  # DEBUG
+    print("🔥 FINAL EMOTION:", final_emotion)
 
-    # 4️⃣ Create recommendation
+    # 3️⃣ Create recommendation
     recommendation = create_recommendation(db, session)
 
-    print("🔥 ACTION:", recommendation.recommendation_type)  # DEBUG
+    action = "continue"
+    if recommendation:
+        action = recommendation.recommendation_type
 
-    # ✅ FINAL CORRECT RESPONSE
+    print("🔥 ACTION:", action)
+
+    # ✅ FINAL RESPONSE (FRONTEND SAFE)
     return {
+        "message": "Session ended successfully",
+        "final_emotion": final_emotion,
         "recommendation": {
             "emotion": final_emotion,
-            "action": recommendation.recommendation_type
+            "action": action
         }
     }

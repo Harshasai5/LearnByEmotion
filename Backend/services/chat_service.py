@@ -1,5 +1,6 @@
 from database.db import get_db
 from services.ai_service import generate_response
+from sqlalchemy import text   # 🔥 IMPORTANT
 
 
 # 🔍 Validate if question is allowed
@@ -22,72 +23,63 @@ def is_educational(question: str) -> bool:
 
 # 🧠 Get latest emotion
 def get_latest_emotion(student_id: int) -> str:
-    conn = None
-    cursor = None
+    db = next(get_db())
 
     try:
-        conn = get_db()
-        cursor = conn.cursor(dictionary=True)
-
-        cursor.execute("""
+        result = db.execute(text("""
             SELECT emotion FROM emotion_logs
-            WHERE student_id = %s
+            WHERE student_id = :student_id
             ORDER BY logged_at DESC LIMIT 1
-        """, (student_id,))
+        """), {"student_id": student_id})
 
-        result = cursor.fetchone()
-        return result["emotion"] if result else "Neutral"
+        row = result.fetchone()
+        return row[0] if row else "Neutral"
 
     except Exception as e:
         print("Emotion Fetch Error:", e)
         return "Neutral"
 
     finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
+        db.close()
 
 
 # 💬 Main chat handler
 def handle_chat(student_id: int, session_id: int, message: str):
-    conn = None
-    cursor = None
+
+    if not is_educational(message):
+        return {
+            "response": "I’m here to help with educational topics 😊",
+            "chat_id": None
+        }
+
+    db = next(get_db())
 
     try:
-        # 🚫 Filter non-educational questions
-        if not is_educational(message):
-            return {
-                "response": "I’m here to help with educational topics 😊",
-                "chat_id": None
-            }
-
-        # 🧠 Get emotion
         emotion = get_latest_emotion(student_id)
 
-        # 🤖 Generate AI response
         try:
             response = generate_response(message, emotion)
-
-            # ✅ Ensure response is string
             if not isinstance(response, str):
                 response = str(response)
-
         except Exception as e:
             print("AI Error:", e)
             response = f"AI Error: {str(e)}"
 
-        # 💾 Save to DB
-        conn = get_db()
-        cursor = conn.cursor()
-
-        cursor.execute("""
+        result = db.execute(text("""
             INSERT INTO chat_message (student_id, session_id, message, response, emotion)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (student_id, session_id, message, response, emotion))
+            VALUES (:student_id, :session_id, :message, :response, :emotion)
+        """), {
+            "student_id": student_id,
+            "session_id": session_id,
+            "message": message,
+            "response": response,
+            "emotion": emotion
+        })
 
-        chat_id = cursor.lastrowid
-        conn.commit()
+        db.commit()
+
+        # ⚠️ SQLAlchemy doesn't guarantee lastrowid always
+        chat_id = result.lastrowid if hasattr(result, "lastrowid") else None
 
         return {
             "response": response,
@@ -96,71 +88,53 @@ def handle_chat(student_id: int, session_id: int, message: str):
 
     except Exception as e:
         print("Chat Error:", e)
-
-        # 🔥 VERY IMPORTANT: expose real error temporarily
         return {
             "response": f"Server Error: {str(e)}",
             "chat_id": None
         }
 
     finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
+        db.close()
 
 
 # 📜 Get chat history
 def get_chat_history(student_id: int):
-    conn = None
-    cursor = None
+    db = next(get_db())
 
     try:
-        conn = get_db()
-        cursor = conn.cursor(dictionary=True)
-
-        cursor.execute("""
+        result = db.execute(text("""
             SELECT * FROM chat_message
-            WHERE student_id = %s
+            WHERE student_id = :student_id
             ORDER BY created_at DESC
-        """, (student_id,))
+        """), {"student_id": student_id})
 
-        results = cursor.fetchall()
+        rows = result.fetchall()
 
-        # ✅ Ensure response is always string
-        for row in results:
-            if not isinstance(row["response"], str):
-                row["response"] = str(row["response"])
+        # Convert rows to dict
+        history = [dict(row._mapping) for row in rows]
 
-        return results
+        return history
 
     except Exception as e:
         print("History Error:", e)
         return []
 
     finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
+        db.close()
 
 
 # ⭐ Mark message as useful
 def mark_useful(chat_id: int):
-    conn = None
-    cursor = None
+    db = next(get_db())
 
     try:
-        conn = get_db()
-        cursor = conn.cursor()
-
-        cursor.execute("""
+        db.execute(text("""
             UPDATE chat_message
             SET is_useful = TRUE
-            WHERE chat_id = %s
-        """, (chat_id,))
+            WHERE chat_id = :chat_id
+        """), {"chat_id": chat_id})
 
-        conn.commit()
+        db.commit()
 
         return {"message": "Marked as useful"}
 
@@ -169,7 +143,4 @@ def mark_useful(chat_id: int):
         return {"message": f"Error: {str(e)}"}
 
     finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
+        db.close()

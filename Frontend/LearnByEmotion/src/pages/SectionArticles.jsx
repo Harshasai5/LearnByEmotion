@@ -8,11 +8,19 @@ export default function SectionArticles() {
   const navigate = useNavigate();
   const [articles, setArticles] = useState([]);
 
+  const studentId = localStorage.getItem("student_id"); // 🔥 NEW
+
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/sections/${sectionId}/articles`)
+    fetch(
+      `http://127.0.0.1:8000/sections/${sectionId}/articles?student_id=${studentId}` // 🔥 UPDATED
+    )
       .then(res => res.json())
-      .then(data => setArticles(data));
-  }, [sectionId]);
+      .then(data => {
+        console.log("📘 Articles with emotion:", data); // 🔥 DEBUG
+        setArticles(data);
+      })
+      .catch(err => console.error("❌ Fetch error:", err));
+  }, [sectionId, studentId]);
 
   // 🔥 Logout
   const logout = () => {
@@ -26,17 +34,14 @@ export default function SectionArticles() {
       {/* 🔝 NAVBAR */}
       <div className="article-navbar">
 
-        {/* LEFT */}
         <div className="nav-left">
           <button onClick={() => navigate(-1)} className="back-btn">
             ← Back
           </button>
         </div>
 
-        {/* CENTER */}
         <h2 className="course-logo">LearnByEmotion</h2>
 
-        {/* RIGHT */}
         <div className="nav-right">
           <div className="logout-icon" onClick={logout}>
             <img src={logoutIcon} alt="logout" />
@@ -50,7 +55,6 @@ export default function SectionArticles() {
         {/* LEFT SIDE */}
         <div className="article-left">
 
-          {/* HEADER */}
           <div className="article-header">
             <span className="topic-badge">Topic</span>
 
@@ -83,10 +87,12 @@ export default function SectionArticles() {
                 {/* RIGHT */}
                 <div className="article-right-content">
 
-                  {/* ✅ Emotion */}
+                  {/* 🔥 EMOTION FIX */}
                   {article.completed && (
-                    <span className={`emotion-text ${article.emotion}`}>
-                      {article.emotion}
+                    <span
+                      className={`emotion-text ${article.emotion || "neutral"}`}
+                    >
+                      {article.emotion || "Neutral"}
                     </span>
                   )}
 

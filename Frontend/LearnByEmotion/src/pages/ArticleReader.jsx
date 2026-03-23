@@ -38,9 +38,26 @@ export default function ArticleReader() {
 
   // 🔥 COMPLETE FLOW
   const handleComplete = async () => {
-    try {
-      // ✅ Save progress
-      await fetch("http://127.0.0.1:8000/progress/complete-article", {
+  try {
+    // ❗ STEP 1: End session FIRST
+    const res = await fetch(
+      `http://127.0.0.1:8000/sessions/end?session_id=${sessionId}`,
+      { method: "POST" }
+    );
+
+    const data = await res.json();
+    console.log("🔥 END SESSION:", data);
+
+    // ✅ set recommendation (UI)
+    setRecommendation(data.recommendation);
+
+    // ❗ small delay to ensure DB commit
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // ❗ STEP 2: THEN save progress
+    const progressRes = await fetch(
+      "http://127.0.0.1:8000/progress/complete-article",
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -51,23 +68,18 @@ export default function ArticleReader() {
           section_id: article.section_id,
           article_id: article.article_id
         })
-      });
+      }
+    );
 
-      // ✅ End session
-      const res = await fetch(
-        `http://127.0.0.1:8000/sessions/end?session_id=${sessionId}`,
-        { method: "POST" }
-      );
+    const progressData = await progressRes.json();
+    console.log("📊 PROGRESS:", progressData);
 
-      const data = await res.json();
+    setCompleted(true);
 
-      setRecommendation(data.recommendation);
-      setCompleted(true);
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  } catch (err) {
+    console.error("❌ Complete Error:", err);
+  }
+};
 
   if (!article) return <p>Loading...</p>;
 

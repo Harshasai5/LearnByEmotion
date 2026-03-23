@@ -9,7 +9,7 @@ function SuggestionBox({ recommendation }) {
 
   const handleNavigate = () => {
     if (action === "games") navigate("/games");
-    else if (action === "chatbot") navigate("/chatbot");
+    else if (action === "chatbot") navigate("/chat");
     else if (action === "quiz") navigate("/quiz");
     else if (action === "break") navigate("/break");
     else if (action === "deepdive") navigate("/deepdive");

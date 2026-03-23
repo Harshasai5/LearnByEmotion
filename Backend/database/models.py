@@ -158,9 +158,12 @@ class ArticleProgress(Base):
     completed = Column(Boolean, default=True)
     completed_at = Column(DateTime, default=datetime.utcnow)
 
+    # 🔥 NEW FIELDS
+    final_emotion = Column(String(50), nullable=True)
+    recommendation_type = Column(String(50), nullable=True)
+
     student = relationship("Student", back_populates="article_progress")
     article = relationship("Article", back_populates="progress")
-
 
 # ================================
 # 🧠 QUIZ GAME
