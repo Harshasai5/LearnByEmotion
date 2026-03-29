@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllQuiz } from "../api/quizApi";
+import "./CSS/quizlist.css";
 
 export default function QuizList() {
   const [quizzes, setQuizzes] = useState([]);
@@ -13,34 +14,45 @@ export default function QuizList() {
   }, []);
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>📚 All Quizzes</h2>
+    <div className="quiz-page">
 
-      {quizzes.length === 0 ? (
-        <p>Loading quizzes...</p>
-      ) : (
-        quizzes.map((quiz, i) => (
-          <div key={i} style={cardStyle}>
-            <h3>{quiz.quiz_name}</h3>
+      {/* 🔷 NAVBAR */}
+      <div className="navbar">
+        <div className="nav-top">
+          <button className="back-btn" onClick={() => navigate("/home")}>
+            ← Back
+          </button>
 
-            <button
-              onClick={() =>
-                navigate("/quiz/play", { state: quiz })
-              }
-            >
-              Start Quiz →
-            </button>
+          <div className="logo">LearnByEmotion</div>
+        </div>
+      </div>
+
+      {/* 🎮 CONTENT */}
+      <div className="quiz-container">
+
+        {quizzes.length === 0 ? (
+          <p className="loading">Loading quizzes...</p>
+        ) : (
+          <div className="quiz-grid">
+            {quizzes.map((quiz, i) => (
+              <div key={i} className="quiz-card">
+
+                <h3>{quiz.quiz_name}</h3>
+
+                <button
+                  className="start-btn"
+                  onClick={() =>
+                    navigate("/quiz/play", { state: quiz })
+                  }
+                >
+                  Start Quiz →
+                </button>
+
+              </div>
+            ))}
           </div>
-        ))
-      )}
+        )}
+      </div>
     </div>
   );
 }
-
-const cardStyle = {
-  background: "#fff",
-  padding: 20,
-  marginBottom: 15,
-  borderRadius: 8,
-  boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
-};

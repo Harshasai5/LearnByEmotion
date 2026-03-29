@@ -227,7 +227,7 @@ section h3 {
 
 .progress-bar {
   height: 100%;
-  background: #355E58;
+  background: #053229 !important;
   border-radius: 6px;
   transition: width 0.4s ease;
 }

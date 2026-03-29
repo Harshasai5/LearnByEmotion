@@ -8,18 +8,38 @@ export default function SectionArticles() {
   const navigate = useNavigate();
   const [articles, setArticles] = useState([]);
 
-  const studentId = localStorage.getItem("student_id"); // 🔥 NEW
+  const studentId = localStorage.getItem("student_id");
 
   useEffect(() => {
+    if (!studentId) {
+      console.error("❌ No student_id found");
+      return;
+    }
+
     fetch(
-      `http://127.0.0.1:8000/sections/${sectionId}/articles?student_id=${studentId}` // 🔥 UPDATED
+      `http://127.0.0.1:8000/sections/${sectionId}/articles?student_id=${studentId}`
     )
-      .then(res => res.json())
-      .then(data => {
-        console.log("📘 Articles with emotion:", data); // 🔥 DEBUG
-        setArticles(data);
+      .then(res => {
+        if (!res.ok) {
+          throw new Error("API failed");
+        }
+        return res.json();
       })
-      .catch(err => console.error("❌ Fetch error:", err));
+      .then(data => {
+        console.log("📘 Articles:", data);
+
+        // 🔥 IMPORTANT FIX
+        if (Array.isArray(data)) {
+          setArticles(data);
+        } else {
+          console.error("❌ Unexpected response:", data);
+          setArticles([]);
+        }
+      })
+      .catch(err => {
+        console.error("❌ Fetch error:", err);
+        setArticles([]);
+      });
   }, [sectionId, studentId]);
 
   // 🔥 Logout
@@ -66,7 +86,7 @@ export default function SectionArticles() {
             </button>
           </div>
 
-          {/* ARTICLES LIST */}
+          {/* 🔥 ARTICLES LIST */}
           {articles.length === 0 ? (
             <p>No articles available</p>
           ) : (
@@ -87,7 +107,6 @@ export default function SectionArticles() {
                 {/* RIGHT */}
                 <div className="article-right-content">
 
-                  {/* 🔥 EMOTION FIX */}
                   {article.completed && (
                     <span
                       className={`emotion-text ${article.emotion || "neutral"}`}
@@ -113,7 +132,7 @@ export default function SectionArticles() {
 
         </div>
 
-        {/* RIGHT SIDE PANEL */}
+        {/* RIGHT SIDE */}
         <div className="article-right">
 
           <h3>Activities</h3>

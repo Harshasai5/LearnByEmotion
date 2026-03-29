@@ -82,8 +82,6 @@ export default function FillBlanks() {
         <div className="nav-right"></div>
       </div>
 
-      <p className="fill-subtitle">Game: Fill in the Blanks</p>
-
       <div className="fill-main">
 
         {/* 🔹 LEFT PANEL - QUESTIONS */}

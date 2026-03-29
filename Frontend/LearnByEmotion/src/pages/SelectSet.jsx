@@ -1,14 +1,22 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getSelectSet } from "../api/gamesApi";
+import "./CSS/selectset.css";
+import bg from "../assets/bg.png";
 
 export default function SelectSet() {
-  const [game, setGame] = useState(null);
+  const [games, setGames] = useState([]);
+  const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState([]);
   const [result, setResult] = useState(null);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    getSelectSet().then(res => setGame(res.data[0]));
+    getSelectSet().then(res => setGames(res.data));
   }, []);
+
+  const game = games[current];
 
   const toggleSelect = (item) => {
     setSelected(prev =>
@@ -19,11 +27,6 @@ export default function SelectSet() {
   };
 
   const checkAnswer = () => {
-    if (!game.correct_set) {
-      alert("Data error");
-      return;
-    }
-
     const normalize = (arr) =>
       arr.map(i => i.trim().toLowerCase()).sort();
 
@@ -33,34 +36,100 @@ export default function SelectSet() {
     const isCorrect =
       JSON.stringify(user) === JSON.stringify(correct);
 
-    setResult(isCorrect ? "✅ Correct!" : "❌ Try again");
+    setResult(isCorrect ? "correct" : "wrong");
+  };
+
+  const nextQuestion = () => {
+    setSelected([]);
+    setResult(null);
+    setCurrent(prev => prev + 1);
   };
 
   if (!game) return <p>Loading...</p>;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>🎯 Select Set</h2>
+    <div  
+      className="selectset-page"
+      style={{
+        backgroundImage: `url(${bg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat"
+      }}
+    >
 
-      <p>{game.rule}</p>
+      {/* NAVBAR */}
+      <div className="navbar">
+        <div className="nav-top">
+          <button className="back-btn" onClick={() => navigate("/games")}>
+            ← Back to Learning
+          </button>
+          <div className="logo">LearnByEmotion</div>
+        </div>
+      </div>
 
-      {game.items.map((item, i) => (
-        <button
-          key={i}
-          onClick={() => toggleSelect(item)}
-          style={{
-            margin: 5,
-            background: selected.includes(item) ? "green" : "lightgray"
-          }}
-        >
-          {item}
-        </button>
-      ))}
+      {/* CARD */}
+      <div className="card-container">
 
-      <br />
-      <button onClick={checkAnswer}>Check</button>
+        {/* QUESTION */}
+        <div className="question">
+          {game.rule}
+        </div>
 
-      {result && <p>{result}</p>}
+        {/* OPTIONS */}
+        <div className="options-grid">
+          {game.items.map((item, i) => (
+            <button
+              key={i}
+              className={`option-tile ${
+                selected.includes(item) ? "selected" : ""
+              }`}
+              onClick={() => toggleSelect(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
+        {/* CHECK */}
+        {!result && (
+          <button className="check-btn" onClick={checkAnswer}>
+            Check
+          </button>
+        )}
+
+        {/* RESULT */}
+        {result === "correct" && (
+          <>
+            <div className="result-box correct">✅ Correct!</div>
+
+            {current < games.length - 1 && (
+              <button className="next-btn" onClick={nextQuestion}>
+                Next →
+              </button>
+            )}
+          </>
+        )}
+
+        {result === "wrong" && (
+          <div className="result-box wrong">❌ Try again</div>
+        )}
+
+        {/* 🔥 QUESTION PROGRESS */}
+        <div className="progress-text">
+          Question {current + 1} of {games.length}
+        </div>
+
+        <div className="progress-bar">
+          <div
+            className="progress-fill"
+            style={{
+              width: `${((current + 1) / games.length) * 100}%`
+            }}
+          ></div>
+        </div>
+
+      </div>
     </div>
   );
 }

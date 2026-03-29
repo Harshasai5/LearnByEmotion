@@ -1,0 +1,130 @@
+/* PAGE */
+.quiz-page {
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  background-size: cover;
+  position: relative;
+}
+
+.quiz-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(246, 247, 247, 0.9); /* soft overlay */
+  z-index: 0;
+  background-image: url("../../assets/bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.navbar,
+.quiz-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* NAVBAR */
+.navbar {
+  background: #72b0ab;
+  padding: 10px 30px;
+  border-radius: 0 0 15px 15px;
+}
+
+.nav-top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
+.logo {
+  justify-self: center;
+  font-family: 'Oswald', sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: #06080a;
+}
+
+.back-btn {
+  background: #355E58;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* CONTENT */
+.quiz-container {
+  max-width: 900px;
+  margin: 40px auto;
+}
+
+/* HEADER */
+.quiz-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.quiz-icon {
+  font-size: 28px;
+}
+
+.quiz-header h2 {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* GRID */
+.quiz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+/* CARD */
+.quiz-card {
+  background: #d6eae9;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  transition: 0.2s ease;
+}
+
+.quiz-card:hover {
+  transform: translateY(-5px);
+}
+
+/* TITLE */
+.quiz-card h3 {
+  margin-bottom: 10px;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* BUTTON */
+.start-btn {
+  padding: 8px 12px;
+  background: #355E58;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.start-btn:hover {
+  background: #053229;
+}
+
+/* LOADING */
+.loading {
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* overlay for readability */
+.quiz-container {
+  background: rgba(246, 247, 247, 0.92);
+  padding: 30px;
+  border-radius: 15px;
+}

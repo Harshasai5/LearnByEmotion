@@ -1,58 +1,110 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import "./CSS/quizplay.css";
+import bg from "../assets/bg.png";
 
 export default function QuizPlay() {
   const { state } = useLocation();
+  const navigate = useNavigate();
 
-  if (!state) return <p>No quiz selected ❌</p>;
+ 
 
   const questions = state.questions;
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [current, setCurrent] = useState(0);
   const [score, setScore] = useState(0);
+  
+   if (!state) return <p>No quiz selected ❌</p>;
 
   const q = questions[current];
 
   const handleAnswer = (opt) => {
-    if (opt === q.correct_answer) {
+    const isCorrect = opt === q.correct_answer;
+
+    if (isCorrect) {
       setScore(prev => prev + 1);
     }
 
     if (current + 1 < questions.length) {
       setCurrent(current + 1);
     } else {
-      alert(`🎉 Quiz Completed!\nScore: ${score + 1}/${questions.length}`);
+      alert(
+        `🎉 Quiz Completed!\nScore: ${
+          score + (isCorrect ? 1 : 0)
+        }/${questions.length}`
+      );
+      navigate("/quiz");
     }
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>🧠 Quiz</h2>
-
-      <h3>{q.question}</h3>
-
-      <div style={{ marginTop: 15 }}>
-        {q.options.map((opt, i) => (
-          <button
-            key={i}
-            onClick={() => handleAnswer(opt)}
-            style={btnStyle}
-          >
-            {opt}
+    <div
+      className="quizplay-page"
+      style={{
+        backgroundImage: `url(${bg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center"
+      }}
+    >
+      {/* 🔷 NAVBAR */}
+      <div className="navbar">
+        <div className="nav-top">
+          <button className="back-btn" onClick={() => navigate("/quiz")}>
+            ← Back
           </button>
-        ))}
+
+          <div className="logo">LearnByEmotion</div>
+        </div>
       </div>
 
-      <p style={{ marginTop: 20 }}>Score: {score}</p>
+      {/* 🎮 CONTENT */}
+      <div className="quizplay-container">
+
+        {/* 🧠 QUIZ CARD */}
+        <div className="quiz-card">
+
+          {/* QUESTION */}
+          <div className="question-box">
+            {q.question}
+          </div>
+
+          {/* OPTIONS */}
+          <div className="options-container">
+            {q.options.map((opt, i) => (
+              <button
+                key={i}
+                className="option-btn"
+                onClick={() => handleAnswer(opt)}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+
+          {/* 📊 PROGRESS (INSIDE & BELOW OPTIONS) */}
+          <div className="progress-wrapper">
+            <div className="progress-bar">
+              <div
+                className="progress-fill"
+                style={{
+                  width: `${((current + 1) / questions.length) * 100}%`
+                }}
+              ></div>
+            </div>
+
+            <p className="progress-text">
+              Question {current + 1} / {questions.length}
+            </p>
+          </div>
+
+        </div>
+
+        {/* SCORE */}
+        <div className="score-box">
+          Score: {score}
+        </div>
+
+      </div>
     </div>
   );
 }
-
-const btnStyle = {
-  display: "block",
-  margin: "10px 0",
-  padding: "10px 15px",
-  width: "200px"
-};

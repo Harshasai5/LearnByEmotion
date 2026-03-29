@@ -1,8 +1,11 @@
 .fill-container {
-  background: #f6f7f7;
   min-height: 100vh;
   padding: 20px;
   font-family: 'DM Sans', sans-serif;
+  background-image: url("../../assets/bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* NAVBAR */
