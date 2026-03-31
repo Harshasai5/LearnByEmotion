@@ -9,10 +9,9 @@
 
 /* NAVBAR */
 .navbar {
-  display: flex;
-  flex-direction: column;
   background: #72b0ab;
-  padding: 10px 30px 15px;
+  padding: 10px 30px;
+  border-radius: 0 0 20px 20px;
 }
 
 /* TOP */
@@ -28,7 +27,21 @@
   font-family: 'Oswald', sans-serif;
   font-size: 28px;
   font-weight: 600;
-  letter-spacing: 1px;
+  color: #06080a;
+  margin-bottom: 2px; /* 🔥 reduces gap */
+}
+
+/* BOTTOM */
+.nav-bottom {
+  text-align: left; 
+  margin-top: 0;      
+}
+
+/* WELCOME TEXT */
+.welcome-text {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
   color: #06080a;
 }
 

@@ -38,9 +38,10 @@
   display: flex;
   gap: 30px;
   padding: 30px;
+  align-items: flex-start; /* 🔥 IMPORTANT FIX */
 }
 
-/* LEFT FLOW */
+/* LEFT */
 .flow-panel {
   flex: 1;
   background: #BCDDDC;
@@ -48,6 +49,22 @@
   border-radius: 15px;
 }
 
+/* RIGHT WRAPPER */
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* OPTIONS BOX */
+.options-panel {
+  background: #BCDDDC;
+  padding: 20px;
+  border-radius: 15px;
+}
+
+/* FLOW */
 .flow-slot-wrapper {
   display: flex;
   flex-direction: column;
@@ -69,27 +86,35 @@
   color: #355E58;
 }
 
-/* RIGHT OPTIONS */
-.options-panel {
-  flex: 1;
-  background: #BCDDDC;
-  padding: 20px;
-  border-radius: 15px;
-}
-
+/* OPTIONS GRID */
 .options-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-bottom: 30px;
 }
 
+/* OPTION */
 .option-card {
   background: white;
   padding: 10px;
   border-radius: 8px;
   cursor: grab;
   text-align: center;
+  transition: 0.2s ease;
+}
+
+.option-card:hover {
+  transform: translateY(-3px);
+  background: #cfeeed;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* DISABLED */
+.option-card.disabled {
+  background: #e0e0e0;
+  color: #888;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* BUTTON */
@@ -110,7 +135,6 @@
   margin-top: 10px;
   text-align: center;
   font-weight: bold;
-  margin-bottom: 10px;
 }
 
 .correct {
@@ -121,44 +145,28 @@
   color: #842029;
 }
 
-/* CORRECT ORDER */
-.correct-order {
-  margin-top: 50px;
-}
-
+/* CORRECT FLOW */
 .correct-flow {
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 10px;
   margin-top: 10px;
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
+  border: 1px solid #918c95;
 }
 
-/* ✨ HOVER EFFECT */
-.option-card {
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-  cursor: grab;
-  text-align: center;
-  transition: all 0.2s ease;
+/* ✅ CORRECT ORDER CONTAINER */
+.correct-order-panel {
+  max-width: 1100px;
+  margin: 25px auto;
+  background: #BCDDDC; /* same theme */
+  padding: 20px 25px;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
 
-.option-card:hover {
-  transform: translateY(-3px);
-  background: #cfeeed;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-/* 🚫 DISABLED AFTER USE */
-.option-card.disabled {
-  background: #e0e0e0;
-  color: #888;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.option-card.disabled:hover {
-  transform: none;
-  box-shadow: none;
-  background: #e0e0e0;
+/* HEADING */
+.correct-order-panel h4 {
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 10px;
+  color: #06080a;
 }

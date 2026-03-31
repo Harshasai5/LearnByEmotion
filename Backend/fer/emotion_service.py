@@ -1,5 +1,3 @@
-# emotion_service.py
-
 import tensorflow as tf
 import numpy as np
 import cv2
@@ -11,7 +9,7 @@ from keras.models import Sequential
 
 # Absolute path to model directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "emotion_model_tf")
+MODEL_PATH = os.path.join(BASE_DIR, "emotion_model_v2_tf")
 
 print("🔄 Loading FER model using TFSMLayer (Keras 3 compatible)...")
 

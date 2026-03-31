@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getFillBlanks } from "../api/gamesApi";
 import "./css/fill.css";
 
@@ -10,6 +10,8 @@ export default function FillBlanks() {
   const [dragItem, setDragItem] = useState(null);
   const [result, setResult] = useState(null);
   const [validation, setValidation] = useState({});
+  const location = useLocation();
+  const from = location.state?.from;
 
   const navigate = useNavigate();
 
@@ -71,7 +73,11 @@ export default function FillBlanks() {
         <div className="nav-left">
           <button
             className="back-btn"
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              if (from === "article") navigate(-1);
+              else if (from === "home") navigate("/home");
+              else navigate("/home");
+            }}
           >
             ← Back to Learning
           </button>

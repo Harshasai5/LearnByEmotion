@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getSelectSet } from "../api/gamesApi";
 import "./CSS/selectset.css";
 import bg from "../assets/bg.png";
@@ -9,6 +9,8 @@ export default function SelectSet() {
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState([]);
   const [result, setResult] = useState(null);
+  const location = useLocation();
+  const from = location.state?.from;
 
   const navigate = useNavigate();
 
@@ -61,7 +63,14 @@ export default function SelectSet() {
       {/* NAVBAR */}
       <div className="navbar">
         <div className="nav-top">
-          <button className="back-btn" onClick={() => navigate("/games")}>
+          <button
+            className="back-btn"
+            onClick={() => {
+              if (from === "article") navigate(-1);
+              else if (from === "home") navigate("/home");
+              else navigate("/home");
+            }}
+          >
             ← Back to Learning
           </button>
           <div className="logo">LearnByEmotion</div>

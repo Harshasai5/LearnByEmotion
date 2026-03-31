@@ -139,28 +139,44 @@ export default function SectionArticles() {
 
           <div
             className="activity-card"
-            onClick={() => navigate("/games/match-flow")}
+            onClick={() =>
+              navigate("/games/match-flow", {
+                state: { from: "article" }
+              })
+            }
           >
             🎮 Match Flow
           </div>
 
           <div
             className="activity-card"
-            onClick={() => navigate("/games/fill-blanks")}
+            onClick={() =>
+              navigate("/games/fill-blanks", {
+                state: { from: "article" }
+              })
+            }
           >
             ✏️ Fill in the Blanks
           </div>
 
           <div
             className="activity-card"
-            onClick={() => navigate("/games/select-set")}
+            onClick={() =>
+              navigate("/games/select-set", {
+                state: { from: "article" }
+              })
+            }
           >
             🧩 Select Set
           </div>
 
           <div
             className="activity-card"
-            onClick={() => navigate("/quiz")}
+            onClick={() =>
+              navigate("/quiz", {
+                state: { from: "article" }
+              })
+            }
           >
             🧠 Quiz
           </div>

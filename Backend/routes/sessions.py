@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime
 
-from fer.webcam_service import start_webcam, stop_webcam
 from database.db import get_db
 from database.models import LearningSession, EmotionLog
 from services.emotion_service import compute_final_emotion
@@ -11,7 +10,7 @@ from services.recommendation_service import create_recommendation
 router = APIRouter(prefix="/sessions", tags=["Sessions"])
 
 
-# 🔹 START SESSION (STARTS WEBCAM)
+# 🔹 START SESSION
 @router.post("/start")
 def start_session(
     student_id: int,
@@ -33,9 +32,6 @@ def start_session(
         db.commit()
         db.refresh(session)
 
-        # 🔥 Start webcam
-        start_webcam(session.session_id, student_id)
-
         return {
             "message": "Session started successfully",
             "session_id": session.session_id
@@ -46,7 +42,7 @@ def start_session(
         raise HTTPException(status_code=500, detail="Failed to start session")
 
 
-# 🔹 OPTIONAL: Manual Emotion Log (for testing)
+# 🔹 OPTIONAL: Manual Emotion Log
 @router.post("/log-emotion")
 def log_emotion(
     session_id: int,
@@ -77,7 +73,7 @@ def log_emotion(
     }
 
 
-# 🔥 END SESSION (FINAL FIXED)
+# 🔥 END SESSION
 @router.post("/end")
 def end_session(
     session_id: int,
@@ -90,16 +86,12 @@ def end_session(
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    # 🔥 Stop webcam FIRST
-    stop_webcam()
-
     # 1️⃣ End session
     session.end_time = datetime.utcnow()
 
     # 2️⃣ Compute final emotion
     final_emotion = compute_final_emotion(db, session)
 
-    # ✅ fallback (VERY IMPORTANT)
     if not final_emotion:
         final_emotion = "Neutral"
 
@@ -119,7 +111,6 @@ def end_session(
 
     print("🔥 ACTION:", action)
 
-    # ✅ FINAL RESPONSE (FRONTEND SAFE)
     return {
         "message": "Session ended successfully",
         "final_emotion": final_emotion,

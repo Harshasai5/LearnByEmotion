@@ -117,7 +117,11 @@ export default function Home() {
           {/* TWO BUTTONS ROW */}
           <div className="activity-row">
             <button onClick={() => navigate("/quiz")}>🧠 Quiz</button>
-            <button onClick={() => navigate("/games")}>🎮 Games</button>
+            <button
+              onClick={() => navigate("/games", { state: { from: "home" } })}
+            >
+              🎮 Games
+            </button>
           </div>
 
         </div>

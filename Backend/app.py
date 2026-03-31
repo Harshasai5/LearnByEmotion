@@ -12,7 +12,6 @@ from routes.auth import router as auth_router
 from routes import progress
 from routes import quiz
 from routes import games
-from routes import emotion
 from routes import chat
 
 app = FastAPI(title="LearnByEmotion Backend")
@@ -33,14 +32,12 @@ app.include_router(section_router)
 app.include_router(article_router)
 app.include_router(session_router)
 app.include_router(recommendation_router)
-app.include_router(emotion_router)
+app.include_router(emotion_router)  # ✅ only once
 app.include_router(dashboard_router)
 app.include_router(progress.router)
 app.include_router(quiz.router)
 app.include_router(games.router)
-app.include_router(emotion.router)
 app.include_router(chat.router, prefix="/chat", tags=["Chat"])
-
 
 @app.get("/")
 def root():
